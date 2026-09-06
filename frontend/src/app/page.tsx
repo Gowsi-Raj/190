@@ -12,8 +12,11 @@ import ForensicExaminerDashboard from "@/components/dashboards/ForensicExaminerD
 import PublicProsecutorDashboard from "@/components/dashboards/PublicProsecutorDashboard";
 import JudicialOfficerDashboard from "@/components/dashboards/JudicialOfficerDashboard";
 import SystemAuditorDashboard from "@/components/dashboards/SystemAuditorDashboard";
+import LegalDepartmentDashboard from "@/components/dashboards/LegalDepartmentDashboard";
+import AdministratorDashboard from "@/components/dashboards/AdministratorDashboard";
 
 export default function LegalDMSApp() {
+
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [transferDocHash, setTransferDocHash] = useState<string | null>(null);
 
@@ -72,7 +75,16 @@ export default function LegalDMSApp() {
         <SystemAuditorDashboard currentUser={currentUser} />
       )}
 
+      {currentUser.role === "LEGAL_OFFICER" && (
+        <LegalDepartmentDashboard currentUser={currentUser} />
+      )}
+
+      {currentUser.role === "ADMINISTRATOR" && (
+        <AdministratorDashboard currentUser={currentUser} />
+      )}
+
       {transferDocHash && (
+
         <CustodyTransferModal
           docHash={transferDocHash}
           currentUser={currentUser}

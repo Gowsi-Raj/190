@@ -6,11 +6,13 @@ import { FileCheck2, Clock, Stamp, Download, ArrowRightLeft } from "lucide-react
 interface CaseDossierViewProps {
   dossierData: any;
   userRole: string;
-  onInitiateTransfer: (hash: string) => void;
+  userBadge?: string;
+  onInitiateTransfer?: (hash: string) => void;
 }
 
-export default function CaseDossierView({ dossierData, userRole, onInitiateTransfer }: CaseDossierViewProps) {
-  const canTransfer = ["INVESTIGATING_OFFICER", "STATION_HOUSE_OFFICER", "FORENSIC_EXAMINER"].includes(userRole);
+export default function CaseDossierView({ dossierData, userRole, userBadge, onInitiateTransfer }: CaseDossierViewProps) {
+  const canTransfer = ["INVESTIGATING_OFFICER", "STATION_HOUSE_OFFICER", "FORENSIC_EXAMINER"].includes(userRole) && !!onInitiateTransfer;
+
 
   const formatLocalDate = (isoStr: string) => {
     if (!isoStr) return "N/A";

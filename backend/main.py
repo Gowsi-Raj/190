@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.documents import router as documents_router
+from app.api.admin import router as admin_router
 
 app = FastAPI(
     title="Secure Legal DMS Engine",
@@ -21,6 +22,8 @@ app.add_middleware(
 # Include routers
 app.include_router(auth_router)
 app.include_router(documents_router)
+app.include_router(admin_router)
+
 
 
 @app.get("/health", tags=["health"])

@@ -22,7 +22,9 @@ class UserRole(str, Enum):
     FORENSIC_EXAMINER = "FORENSIC_EXAMINER"
     PUBLIC_PROSECUTOR = "PUBLIC_PROSECUTOR"
     JUDICIAL_OFFICER = "JUDICIAL_OFFICER"
+    LEGAL_OFFICER = "LEGAL_OFFICER"
     SYSTEM_AUDITOR = "SYSTEM_AUDITOR"
+    ADMINISTRATOR = "ADMINISTRATOR"
 
 
 class TokenData(BaseModel):
@@ -32,6 +34,10 @@ class TokenData(BaseModel):
     state: str
     district: str
     stationOrCourt: str
+    email: Optional[str] = None
+    orgId: Optional[str] = None
+    status: Optional[str] = "ACTIVE"
+
 
 
 def hash_password(password: str) -> str:
@@ -67,8 +73,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
         district: str = payload.get("district", "Coimbatore")
         unit: str = payload.get("unit", "State Police Department")
 
+        email: Optional[str] = payload.get("email")
+        org_id: Optional[str] = payload.get("orgId")
+        user_status: str = payload.get("status", "ACTIVE")
+
         if badge is None or role is None:
             raise credentials_exception
+
+        if user_status == "PENDING_APPROVAL":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account registration is pending administrator approval."
+            )
 
         return TokenData(
             badgeNumber=badge,
@@ -76,7 +92,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
             role=UserRole(role),
             state=state,
             district=district,
-            stationOrCourt=unit
+            stationOrCourt=unit,
+            email=email,
+            orgId=org_id,
+            status=user_status
         )
     except (jwt.PyJWTError, ValueError):
         raise credentials_exception
@@ -94,3 +113,6 @@ class RoleChecker:
                 detail=f"Access Denied: Role '{current_user.role.value}' is unauthorized for this evidentiary operation."
             )
         return current_user
+
+
+allow_admin = RoleChecker([UserRole.ADMINISTRATOR])
